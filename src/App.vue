@@ -10,18 +10,25 @@
       app
     >
       <v-list>
-        <v-list-tile
-          value="true"
+      <router-link  class="myLink"
           v-for="(item, i) in items"
           :key="i"
+          :to="item.link"
+
+      >
+        <v-list-tile
+         value="true"
         >
-          <v-list-tile-action>
+          <v-list-tile-action class="linkTile" class-active="routerLinkActive">
             <v-icon v-html="item.icon"></v-icon>
           </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title v-text="item.title"></v-list-tile-title>
-          </v-list-tile-content>
+
+            <v-list-tile-content class="linkTile">
+              <v-list-tile-title v-text="item.title"></v-list-tile-title>
+            </v-list-tile-content>
+
         </v-list-tile>
+      </router-link>
       </v-list>
     </v-navigation-drawer>
     <v-toolbar
@@ -40,7 +47,7 @@
       <router-view/>
     </v-content>
     <v-footer :fixed="fixed" app>
-      <span>&copy; 2017</span>
+      <span>&copy; 2018</span>
     </v-footer>
   </v-app>
 </template>
@@ -55,13 +62,41 @@ export default {
       items: [{
         icon: 'bubble_chart',
         title: 'Menu',
+        link: '/',
+      },
+      {
+        icon: 'home',
+        title: 'Home',
+        link: '/',
+      },
+      {
+        icon: 'timeline',
+        title: 'Graphs',
+        link: '/graphs',
       }],
       miniVariant: false,
-      right: true,
-      rightDrawer: false,
       title: 'Arbitrage',
     };
   },
   name: 'App',
 };
 </script>
+
+<style scoped>
+  .myLink:link {
+    text-decoration: none;
+    font-size: 1.3em;
+  }
+  .routerLinkActive {
+    background-color: indianred;
+    cursor: pointer;
+  }
+  .linkTile:hover {
+    color: purple;
+  }
+
+  .linkTile:active{
+    color: green;
+  }
+</style>
+

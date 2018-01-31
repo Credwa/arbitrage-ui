@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import HelloWorld from '@/containers/Home';
+import Home from '@/containers/Home';
+import Graphs from '@/containers/Graphs';
+
 
 Vue.use(Router);
 
@@ -9,7 +11,12 @@ export default new Router({
     {
       path: '/',
       name: 'Home',
-      component: HelloWorld,
+      component: Home,
+    },
+    {
+      path: '/graphs',
+      name: 'Graphs',
+      component: Graphs,
     },
   ],
 });

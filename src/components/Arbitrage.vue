@@ -42,10 +42,6 @@ export default {
     };
   },
   methods: {
-    newData(data) {
-      console.log(data);
-      this.arbitrage = data;
-    },
   },
   computed: {
     getArbitrage() {
@@ -61,11 +57,10 @@ export default {
     },
   },
   created() {
-    console.log(this.$refs);
     const self = this;
     this.newArbitrage = this.arbitrage;
     this.$options.sockets.newArbitrage = (data) => {
-      if (self.newArbitrage.symbol === data.symbol) {
+      if (self.newArbitrage.symbol === data.symbol && self.newArbitrage.foreignCurrency === data.foreignCurrency) {
         self.newArbitrage = data;
         this.$refs.arbCard.className = 'card__text newArb';
         setTimeout(() => {

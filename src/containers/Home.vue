@@ -9,9 +9,9 @@
           <h1 v-if="toggleExchanges">Argentine Peso Exchange Rate: <span style="color:#2e7d32">${{argentinePesosRate}}</span></h1>
         </v-layout>
         <v-layout row wrap justify-space-between>
-          <arbitrage  v-show="!toggleExchanges" v-for="arbitrate in MXNArbitrage" :arbitrage="arbitrate"></arbitrage>
+          <arbitrage  v-show="!toggleExchanges" v-for="arbitrage in MXNArbitrage" :arbitrage="arbitrage" :key="arbitrage.time" ></arbitrage>
 
-          <arbitrage  v-show="toggleExchanges" v-for="arbitrate in ARSArbitrage" :arbitrage="arbitrate"></arbitrage>
+          <arbitrage  v-show="toggleExchanges" v-for="arbitrage in ARSArbitrage" :key="arbitrage.time" :arbitrage="arbitrage"></arbitrage>
         </v-layout>
       </v-layout>
     </v-slide-y-transition>
