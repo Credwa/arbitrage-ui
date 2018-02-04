@@ -10,14 +10,16 @@
             <v-divider></v-divider>
             <v-card-text ref="arbCard">
                 <div class="arbitrageData">
-                  <p>Price in Pesos: <span style="color: #0d47a1">₱{{(getArbitrage.priceInPesos.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
+                  <p>Spread: <span :style="getArbitrage.spread > 0 ? 'color:#2e7d32' : 'color:#e53935'">${{(getArbitrage.spread.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
 
-                  <p>Exchange Price: <span style="color: #0d47a1">₱{{(getArbitrage.foreignExchangePrice.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
+                  <p>Spread Percentage: <span :style="getArbitrage.spreadPercentage > 0 ? 'color:#ab47bc' : 'color:#e53935'">{{(getArbitrage.spreadPercentage.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}%</span></p>
+                  <p>BTC-USD-MXN: <span style="color: #0d47a1">₱{{(getArbitrage.priceInPesos.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
+
+                  <p>BTC-MXN: <span style="color: #0d47a1">₱{{(getArbitrage.foreignExchangePrice.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
 
                   <p>{{getArbitrage.symbol}}-{{getArbitrage.foreignCurrency | shortenCurrencyName}}-USD: <span style="color: #2e7d32">${{(getArbitrage.foreignExchangePriceUSD.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
 
-                  <p>Spread: <span :style="getArbitrage.spread > 0 ? 'color:#2e7d32' : 'color:#e53935'">${{(getArbitrage.spread.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
-                  <p>Spread Percentage: <span :style="getArbitrage.spreadPercentage > 0 ? 'color:#ab47bc' : 'color:#e53935'">{{(getArbitrage.spreadPercentage.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}%</span></p>
+
                 </div>
             </v-card-text>
             <v-card-actions>

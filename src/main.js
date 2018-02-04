@@ -7,7 +7,7 @@ import 'vuetify/dist/vuetify.min.css';
 import App from './App';
 import router from './router';
 
-Vue.use(VueSocketio, 'https://shielded-oasis-26232.herokuapp.com/');
+Vue.use(VueSocketio, 'http://localhost:3000');
 
 Vue.use(Vuetify, { theme: {
   primary: '#1976d2',
