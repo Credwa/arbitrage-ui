@@ -6,8 +6,10 @@ import VueSocketio from 'vue-socket.io';
 import 'vuetify/dist/vuetify.min.css';
 import App from './App';
 import router from './router';
+import { store } from './store/store';
 
-Vue.use(VueSocketio, 'https://shielded-oasis-26232.herokuapp.com');
+Vue.use(VueSocketio, 'http://ec2-54-164-87-57.compute-1.amazonaws.com:3000');
+// Vue.use(VueSocketio, 'http://localhost:3000');
 
 Vue.use(Vuetify, { theme: {
   primary: '#1976d2',
@@ -26,5 +28,6 @@ new Vue({
   el: '#app',
   router,
   components: { App },
+  store,
   template: '<App/>',
 });

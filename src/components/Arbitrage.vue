@@ -13,12 +13,11 @@
                   <p>Spread: <span :style="getArbitrage.spread > 0 ? 'color:#2e7d32' : 'color:#e53935'">${{(getArbitrage.spread.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
 
                   <p>Spread Percentage: <span :style="getArbitrage.spreadPercentage > 0 ? 'color:#ab47bc' : 'color:#e53935'">{{(getArbitrage.spreadPercentage.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}%</span></p>
-                  <p>BTC-USD-MXN: <span style="color: #0d47a1">₱{{(getArbitrage.priceInPesos.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
+                  <p>Face Value {{getArbitrage.foreignCurrency | shortenCurrencyName}}: <span style="color: #0d47a1">₱{{(getArbitrage.priceInForeignCurrency.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
 
-                  <p>BTC-MXN: <span style="color: #0d47a1">₱{{(getArbitrage.foreignExchangePrice.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
+                  <p>Foreign Exchange Value: <span style="color: #0d47a1">₱{{(getArbitrage.foreignExchangePrice.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
 
-                  <p>{{getArbitrage.symbol}}-{{getArbitrage.foreignCurrency | shortenCurrencyName}}-USD: <span style="color: #2e7d32">${{(getArbitrage.foreignExchangePriceUSD.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
-
+                  <p>Foreign Exchange Value In USD: <span style="color: #2e7d32">${{(getArbitrage.foreignExchangePriceUSD.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
 
                 </div>
             </v-card-text>
@@ -31,6 +30,7 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex';
 import moment from 'moment';
 
 export default {
@@ -43,8 +43,7 @@ export default {
       moment,
     };
   },
-  methods: {
-  },
+  methods: { ...mapMutations(['setARSRate', 'setMXNRate', 'setAUDRate']) },
   computed: {
     getArbitrage() {
       return this.newArbitrage;
@@ -54,15 +53,28 @@ export default {
     shortenCurrencyName(value) {
       if (value === 'Mexican Pesos') {
         return 'MXN';
+      } else if (value === 'Argentine Pesos') {
+        return 'ARS';
       }
-      return 'ARS';
+      return 'AUD';
     },
   },
   created() {
     const self = this;
     this.newArbitrage = this.arbitrage;
     this.$options.sockets.newArbitrage = (data) => {
-      if (self.newArbitrage.symbol === data.symbol && self.newArbitrage.foreignCurrency === data.foreignCurrency) {
+      if (data.foreignCurrency === 'Argentine Pesos') {
+        this.setARSRate(data.exchangeRate);
+      } else if (data.foreignCurrency === 'Austrailian Dollars') {
+        this.setAUDRate(data.exchangeRate);
+      } else if (data.foreignCurrency === 'Mexican Pesos') {
+        this.setMXNRate(data.exchangeRate);
+      }
+
+      if (
+        self.newArbitrage.symbol === data.symbol &&
+        self.newArbitrage.foreignCurrency === data.foreignCurrency
+      ) {
         self.newArbitrage = data;
         this.$refs.arbCard.className = 'card__text newArb';
         setTimeout(() => {
@@ -85,10 +97,10 @@ export default {
 }
 
 .arbitrageCard {
-  min-height: 45vh;
-  max-height: 45vh;
+  min-height: 50vh;
+  max-height: 50vh;
   width: 100%;
-  min-width: 20vw;
+  min-width: 20vw
 }
 
 .newArb {
@@ -98,12 +110,12 @@ export default {
 
 @keyframes example {
   from {
-    font-size:1em;
+    font-size: 1em;
   }
   to {
     color: grey;
     background-color: #e3f2fd;
-    font-size: 1.05em
+    font-size: 1.05em;
   }
 }
 </style>

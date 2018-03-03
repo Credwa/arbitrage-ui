@@ -30,6 +30,7 @@ module.exports = {
       vue: 'never'
     }],
     semi: ['error', 'always', { omitLastInOneLineBlock: true }],
+    'object-shorthand': ['off', 'always'],
     // disallow reassignment of function parameters
     // disallow parameter object manipulation except for specific exclusions
     'no-param-reassign': ['error', {
@@ -40,6 +41,7 @@ module.exports = {
         'e' // for e.returnvalue
       ]
     }],
+    'import/prefer-default-export': ['off', 'always'],
     // allow optionalDependencies
     'import/no-extraneous-dependencies': ['error', {
       optionalDependencies: ['test/unit/index.js']

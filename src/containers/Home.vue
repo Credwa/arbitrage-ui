@@ -2,16 +2,32 @@
   <v-container grid-list-md text-xs-center fluid>
     <v-slide-y-transition mode="out-in">
       <v-layout align-center wrap column justify-space-between v-if="!loading">
-        <v-switch v-bind:label="`Switch Exchanges`" v-model="toggleExchanges"></v-switch>
+        <v-flex xs12 sm6 class="py-2">
+            <v-btn-toggle  active-class="exchangeActive" v-model="activeExchange">
+              <v-btn flat value="MXN" color="blue">
+                MXN
+              </v-btn>
+              <v-btn flat value="ARS" color="green">
+                ARS
+              </v-btn>
+              <v-btn flat value="AUD" color="red">
+                AUD
+              </v-btn>
+            </v-btn-toggle>
+          </v-flex>
         <v-layout row>
-          <h1 v-if="!toggleExchanges">Mexican Peso Exchange Rate: <span style="color:#2e7d32">$1.000 - ₱{{mexicanPesosRate}}</span></h1>
+          <h1 v-if="activeExchange === 'MXN'">Mexican Peso Exchange Rate: <span style="color:#2e7d32">$1.000 - {{getMXNRate}} MXN</span></h1>
 
-          <h1 v-if="toggleExchanges">Argentine Peso Exchange Rate: <span style="color:#2e7d32">$1.000 - ₱{{argentinePesosRate}}</span></h1>
+          <h1 v-if="activeExchange === 'ARS'">Argentine Peso Exchange Rate: <span style="color:#2e7d32">$1.000 - {{getARSRate}} ARS</span></h1>
+
+          <h1 v-if="activeExchange === 'AUD'">Austrailian Dollar Exchange Rate: <span style="color:#2e7d32">$1.000 - {{getAUDRate}} AUD</span></h1>
         </v-layout>
         <v-layout row wrap justify-space-between>
-          <arbitrage  v-show="!toggleExchanges" v-for="arbitrage in MXNArbitrage" :arbitrage="arbitrage" :key="arbitrage.time" ></arbitrage>
+          <arbitrage  v-show="activeExchange === 'MXN'" v-for="arbitrage in MXNArbitrage" :arbitrage="arbitrage" :key="arbitrage.time" ></arbitrage>
 
-          <arbitrage  v-show="toggleExchanges" v-for="arbitrage in ARSArbitrage" :key="arbitrage.time" :arbitrage="arbitrage"></arbitrage>
+          <arbitrage  v-show="activeExchange === 'ARS'" v-for="arbitrage in ARSArbitrage" :key="arbitrage.time" :arbitrage="arbitrage"></arbitrage>
+
+          <arbitrage  v-show="activeExchange === 'AUD'" v-for="arbitrage in AUDArbitrage" :key="arbitrage.time" :arbitrage="arbitrage"></arbitrage>
         </v-layout>
       </v-layout>
       <v-progress-circular v-bind:size="250" v-bind:width="2" v-if="loading" indeterminate color="primary"></v-progress-circular>
@@ -20,6 +36,7 @@
 </template>
 
 <script>
+import { mapMutations, mapGetters } from 'vuex';
 import axios from 'axios';
 import Arbitrage from '../components/Arbitrage';
 
@@ -31,33 +48,63 @@ export default {
     return {
       mexicanPesosRate: null,
       argentinePesosRate: null,
+      AUDRate: null,
+      AUDArbitrage: null,
       MXNArbitrage: null,
       ARSArbitrage: null,
       toggleExchanges: false,
       loading: false,
+      text: 'center',
+      activeExchange: 'MXN',
     };
   },
-  sockets: {
+  sockets: {},
+  methods: {
+    ...mapMutations(['setARSRate', 'setMXNRate', 'setAUDRate']),
   },
-  created() {
+  computed: {
+    ...mapGetters(['getARSRate', 'getMXNRate', 'getAUDRate']),
+  },
+  mounted() {
     this.loading = true;
-    axios.get('https://shielded-oasis-26232.herokuapp.com/latest/MXN').then((data) => {
-      console.log(data.data);
-      this.MXNArbitrage = data.data;
-      this.mexicanPesosRate = data.data[0].exchangeRate.toLocaleString(undefined, { minimumFractionDigits: 3 });
-      this.loading = false;
-    }).catch((e) => {
-      console.log(e);
-      this.loading = false;
-    });
+    axios
+      .get('http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/latest/MXN')
+      .then((data) => {
+        this.MXNArbitrage = data.data;
+        this.setMXNRate(data.data[0].exchangeRate.toLocaleString(
+          undefined,
+          { minimumFractionDigits: 3 },
+        ));
+        // this.mexicanPesosRate = data.data[0].exchangeRate.toLocaleString(
+        //   undefined,
+        //   { minimumFractionDigits: 3 },
+        // );
+        this.loading = false;
+      })
+      .catch((e) => {
+        console.log(e);
+        this.loading = false;
+      });
 
-    axios.get('https://shielded-oasis-26232.herokuapp.com/latest/ARS').then((data) => {
-      console.log(data.data);
-      this.ARSArbitrage = data.data;
-      this.argentinePesosRate = data.data[0].exchangeRate.toLocaleString(undefined, { minimumFractionDigits: 3 });
-    }).catch((e) => {
-      console.log(e);
-    });
+    axios
+      .get('http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/latest/ARS')
+      .then((data) => {
+        this.ARSArbitrage = data.data;
+        this.setARSRate(data.data[0].exchangeRate);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+
+    axios
+      .get('http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/latest/AUD')
+      .then((data) => {
+        this.AUDArbitrage = data.data;
+        this.setAUDRate(data.data[0].exchangeRate);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   },
 };
 </script>
@@ -78,5 +125,13 @@ li {
 }
 a {
   color: #42b983;
+}
+
+.exchangeActive {
+  color: red;
+}
+
+.btn--active {
+  background: blue;
 }
 </style>

@@ -42,6 +42,9 @@ export default {
         'XRP-MXN',
         'BTC-ARS',
         'ETH-ARS',
+        'BTC-AUD',
+        'ETH-AUD',
+        'BCH-AUD',
       ],
       loading: false,
       histData: null,
@@ -149,7 +152,7 @@ export default {
       };
       keys.forEach((element) => {
         newDataSet.labels.push(
-          moment(histData[element].time).format('MM-dd HH:mm'),
+          moment(histData[element].time).format('MMM-d-Y HH:mm'),
         );
         newDataSet.datasets[0].data.push(histData[element].USDPrice);
         newDataSet.datasets[1].data.push(
@@ -174,7 +177,7 @@ export default {
       this.loading = true;
       const graph = this.select.split('-');
       axios
-        .get(`https://shielded-oasis-26232.herokuapp.com/historical/${graph[0]}/${graph[1]}`)
+        .get(`http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/historical/${graph[0]}/${graph[1]}`)
         .then((data) => {
           this.histData = data.data;
           this.formatDataForGraph(data.data);
@@ -192,7 +195,7 @@ export default {
     const graph = this.select.split('-');
     this.loading = true;
     axios
-      .get(`https://shielded-oasis-26232.herokuapp.com/historical/${graph[0]}/${graph[1]}`)
+      .get(`http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/historical/${graph[0]}/${graph[1]}`)
       .then((data) => {
         this.histData = data.data;
         this.formatDataForGraph(data.data);
