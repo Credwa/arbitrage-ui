@@ -4,6 +4,7 @@
       <v-layout align-center wrap column justify-space-between>
           <v-form ref="form" lazy-validation class="select">
             <v-select
+              style="min-width: 10vw"
               label="Graph"
               v-model="select"
               :items="items"
@@ -11,7 +12,15 @@
               required
               ref='graphSelect'
             ></v-select>
-        </v-form>
+            <HotelDatePicker @checkInChanged="checkInChanged($event)" @checkOutChanged="checkOutChanged($event)" :startingDateValue="startDateVal._d"
+            :endingDateValue="endDateVal._d"  :startDate="moment().subtract(1, 'years').format('YYYY-MM-DD')" :endDate="moment().startOf('day').add(2, 'days').format('YYYY-MM-DD')" :hoveringTooltip="false"/>
+            <v-btn outline color="success" @click="buttonRangeClick('today')">Today</v-btn>
+            <v-btn outline color="primary" @click="buttonRangeClick('yesterday')">Yesterday</v-btn>
+            <v-btn outline color=""  @click="buttonRangeClick('last7Days')">Last 7 Days</v-btn>
+            <v-btn outline color="success"  @click="buttonRangeClick('thisMonth')">This Month</v-btn>
+            <v-btn outline color="info"  @click="buttonRangeClick('last30Days')">Last 30 Days</v-btn>
+            <v-btn outline color=""  @click="buttonRangeClick('yearToDate')">Year To Date</v-btn>
+          </v-form>
         <div class="graph">
           <graph :chartData="chartData" :options="chartOptions" class="graphs"> </graph>
           <v-progress-circular v-bind:size="250" v-bind:width="2" v-if="loading" indeterminate color="primary"></v-progress-circular>
@@ -25,11 +34,14 @@
 <script>
 import axios from 'axios';
 import moment from 'moment';
+import HotelDatePicker from 'vue-hotel-datepicker';
+
 import Graph from './../components/Graph';
 
 export default {
   components: {
     Graph,
+    HotelDatePicker,
   },
   data() {
     return {
@@ -46,6 +58,12 @@ export default {
         'ETH-AUD',
         'BCH-AUD',
       ],
+      startDateVal: moment()
+        .startOf('day')
+        .subtract(1, 'days'),
+      endDateVal: moment()
+        .startOf('day')
+        .add(1, 'days'),
       loading: false,
       histData: null,
       moment,
@@ -60,7 +78,7 @@ export default {
         maintainAspectRatio: false,
         pan: {
           // Boolean to enable panning
-          enabled: true,
+          enabled: false,
 
           // Panning directions. Remove the appropriate direction to disable
           // Eg. 'y' would only allow panning in the y direction
@@ -99,6 +117,62 @@ export default {
     };
   },
   methods: {
+    checkInChanged(date) {
+      this.startDateVal = moment(date);
+    },
+    checkOutChanged(date) {
+      this.endDateVal = moment(date);
+    },
+    buttonRangeClick(range) {
+      if (range === 'today') {
+        this.startDateVal = moment().startOf('day');
+        this.endDateVal = moment()
+          .startOf('day')
+          .add(1, 'days');
+      } else if (range === 'yesterday') {
+        this.startDateVal = moment().startOf('day').subtract(1, 'days');
+        this.endDateVal = moment()
+          .startOf('day');
+      } else if (range === 'last7Days') {
+        this.startDateVal = moment().startOf('day').subtract(6, 'days');
+        this.endDateVal = moment()
+          .startOf('day')
+          .add(1, 'days');
+      } else if (range === 'thisMonth') {
+        this.startDateVal = moment().startOf('month');
+        this.endDateVal = moment()
+          .startOf('day')
+          .add(1, 'days');
+      } else if (range === 'last30Days') {
+        this.startDateVal = moment().startOf('day').subtract(29, 'days');
+        this.endDateVal = moment()
+          .startOf('day')
+          .add(1, 'days');
+      } else if (range === 'yearToDate') {
+        this.startDateVal = moment().startOf('year');
+        this.endDateVal = moment()
+          .startOf('day')
+          .add(1, 'days');
+      }
+      this.loading = true;
+      const graph = this.select.split('-');
+      axios
+        .get(
+          `http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/date-range/${
+            graph[0]
+          }/${graph[1]}/${this.startDateVal.unix() *
+            1000}/${this.endDateVal.unix() * 1000}`,
+        )
+        .then((data) => {
+          this.histData = data.data;
+          this.formatDataForGraph(data.data);
+          this.loading = false;
+        })
+        .catch((e) => {
+          console.log(e);
+          this.loading = false;
+        });
+    },
     formatDataForGraph(histData) {
       const keys = Object.keys(histData);
       const newDataSet = {
@@ -152,7 +226,7 @@ export default {
       };
       keys.forEach((element) => {
         newDataSet.labels.push(
-          moment(histData[element].time).format('MMM-d-Y HH:mm'),
+          moment(histData[element].time).format('MMM-DD-Y HH:mm'),
         );
         newDataSet.datasets[0].data.push(histData[element].USDPrice);
         newDataSet.datasets[1].data.push(
@@ -177,7 +251,32 @@ export default {
       this.loading = true;
       const graph = this.select.split('-');
       axios
-        .get(`http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/historical/${graph[0]}/${graph[1]}`)
+        .get(
+          `http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/date-range/${
+            graph[0]
+          }/${graph[1]}/${this.startDateVal.unix() *
+            1000}/${this.endDateVal.unix() * 1000}`,
+        )
+        .then((data) => {
+          this.histData = data.data;
+          this.formatDataForGraph(data.data);
+          this.loading = false;
+        })
+        .catch((e) => {
+          console.log(e);
+          this.loading = false;
+        });
+    },
+    endDateVal() {
+      this.loading = true;
+      const graph = this.select.split('-');
+      axios
+        .get(
+          `http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/date-range/${
+            graph[0]
+          }/${graph[1]}/${this.startDateVal.unix() *
+            1000}/${this.endDateVal.unix() * 1000}`,
+        )
         .then((data) => {
           this.histData = data.data;
           this.formatDataForGraph(data.data);
@@ -195,7 +294,12 @@ export default {
     const graph = this.select.split('-');
     this.loading = true;
     axios
-      .get(`http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/historical/${graph[0]}/${graph[1]}`)
+      .get(
+        `http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/date-range/${
+          graph[0]
+        }/${graph[1]}/${this.startDateVal.unix() *
+          1000}/${this.endDateVal.unix() * 1000}`,
+      )
       .then((data) => {
         this.histData = data.data;
         this.formatDataForGraph(data.data);
@@ -212,11 +316,15 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .graph {
-  width:90%;
+  width: 90%;
 }
 
 .select {
-  min-width: 10vw;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 h1,
 h2 {

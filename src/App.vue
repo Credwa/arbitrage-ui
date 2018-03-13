@@ -73,6 +73,11 @@ export default {
         icon: 'timeline',
         title: 'Graphs',
         link: '/graphs',
+      },
+      {
+        icon: 'help_outline',
+        title: 'Patch Notes',
+        link: '/updates',
       }],
       miniVariant: false,
       title: 'Arbitrage',

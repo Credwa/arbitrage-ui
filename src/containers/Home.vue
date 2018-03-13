@@ -14,6 +14,7 @@
                 AUD
               </v-btn>
             </v-btn-toggle>
+            <v-chip color="primary"><span style="color:white">{{highestSpread}}</span></v-chip>
           </v-flex>
         <v-layout row>
           <h1 v-if="activeExchange === 'MXN'">Mexican Peso Exchange Rate: <span style="color:#2e7d32">$1.000 - {{getMXNRate}} MXN</span></h1>
@@ -61,9 +62,35 @@ export default {
   sockets: {},
   methods: {
     ...mapMutations(['setARSRate', 'setMXNRate', 'setAUDRate']),
+    shortenCurrencyName(value) {
+      if (value === 'Mexican Pesos') {
+        return 'MXN';
+      } else if (value === 'Argentine Pesos') {
+        return 'ARS';
+      }
+      return 'AUD';
+    },
   },
   computed: {
     ...mapGetters(['getARSRate', 'getMXNRate', 'getAUDRate']),
+    highestSpread() {
+      const all = { ...this.ARSArbitrage, ...this.MXNArbitrage, ...this.AUDArbitrage };
+      const highest = {
+        symbol: null,
+        exchange: null,
+        val: 0,
+        spread: null,
+      };
+      Object.keys(all).forEach((arb) => {
+        if (all[arb].spreadPercentage > highest.val) {
+          highest.symbol = all[arb].symbol;
+          highest.exchange = this.shortenCurrencyName(all[arb].foreignCurrency);
+          highest.val = all[arb].spreadPercentage;
+          highest.spread = all[arb].spread;
+        }
+      });
+      return `${highest.symbol}-${highest.exchange}: ${highest.val.toLocaleString(undefined, { minimumFractionDigits: 3 })}% - $${highest.spread.toLocaleString(undefined, { minimumFractionDigits: 3 })}`;
+    },
   },
   mounted() {
     this.loading = true;
