@@ -14,7 +14,7 @@
                 AUD
               </v-btn>
             </v-btn-toggle>
-            <v-chip color="primary"><span style="color:white">{{highestSpread}}</span></v-chip>
+            <v-chip color="primary"><span style="color:white">{{getBestArb.exchange}}-{{getBestArb.symbol}}: {{getBestArb.spreadPercentage}}% | ${{getBestArb.spread}}</span></v-chip>
           </v-flex>
         <v-layout row>
           <h1 v-if="activeExchange === 'MXN'">Mexican Peso Exchange Rate: <span style="color:#2e7d32">$1.000 - {{getMXNRate}} MXN</span></h1>
@@ -60,8 +60,25 @@ export default {
     };
   },
   sockets: {},
+  watch: {
+    MXNArbitrage() {
+      Object.keys(this.MXNArbitrage).forEach((arb) => {
+        this.setBestArb(this.MXNArbitrage[arb]);
+      });
+    },
+    ARSArbitrage() {
+      Object.keys(this.ARSArbitrage).forEach((arb) => {
+        this.setBestArb(this.ARSArbitrage[arb]);
+      });
+    },
+    AUDArbitrage() {
+      Object.keys(this.MXNArbitrage).forEach((arb) => {
+        this.setBestArb(this.AUDArbitrage[arb]);
+      });
+    },
+  },
   methods: {
-    ...mapMutations(['setARSRate', 'setMXNRate', 'setAUDRate']),
+    ...mapMutations(['setARSRate', 'setMXNRate', 'setAUDRate', 'setBestArb']),
     shortenCurrencyName(value) {
       if (value === 'Mexican Pesos') {
         return 'MXN';
@@ -72,24 +89,12 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(['getARSRate', 'getMXNRate', 'getAUDRate']),
+    ...mapGetters(['getARSRate', 'getMXNRate', 'getAUDRate', 'getBestArb']),
     highestSpread() {
       const all = { ...this.ARSArbitrage, ...this.MXNArbitrage, ...this.AUDArbitrage };
-      const highest = {
-        symbol: null,
-        exchange: null,
-        val: 0,
-        spread: null,
-      };
       Object.keys(all).forEach((arb) => {
-        if (all[arb].spreadPercentage > highest.val) {
-          highest.symbol = all[arb].symbol;
-          highest.exchange = this.shortenCurrencyName(all[arb].foreignCurrency);
-          highest.val = all[arb].spreadPercentage;
-          highest.spread = all[arb].spread;
-        }
+        this.setBestArb(all[arb]);
       });
-      return `${highest.symbol}-${highest.exchange}: ${highest.val.toLocaleString(undefined, { minimumFractionDigits: 3 })}% - $${highest.spread.toLocaleString(undefined, { minimumFractionDigits: 3 })}`;
     },
   },
   mounted() {
@@ -102,10 +107,6 @@ export default {
           undefined,
           { minimumFractionDigits: 3 },
         ));
-        // this.mexicanPesosRate = data.data[0].exchangeRate.toLocaleString(
-        //   undefined,
-        //   { minimumFractionDigits: 3 },
-        // );
         this.loading = false;
       })
       .catch((e) => {

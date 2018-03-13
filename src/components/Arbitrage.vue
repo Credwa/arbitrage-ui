@@ -43,7 +43,7 @@ export default {
       moment,
     };
   },
-  methods: { ...mapMutations(['setARSRate', 'setMXNRate', 'setAUDRate']) },
+  methods: { ...mapMutations(['setARSRate', 'setMXNRate', 'setAUDRate', 'setBestArb']) },
   computed: {
     getArbitrage() {
       return this.newArbitrage;
@@ -63,6 +63,7 @@ export default {
     const self = this;
     this.newArbitrage = this.arbitrage;
     this.$options.sockets.newArbitrage = (data) => {
+      this.setBestArb(data);
       if (data.foreignCurrency === 'Argentine Pesos') {
         this.setARSRate(data.exchangeRate);
       } else if (data.foreignCurrency === 'Austrailian Dollars') {
