@@ -8,6 +8,31 @@
 # install dependencies
 npm install
 
+# Create config json file with firebase credentials
+
+cd src/config/
+
+# mac
+touch config.json
+
+# or windows
+echo "" > config.json
+```
+
+```json
+{
+  "init": {
+    "apiKey": "",
+    "authDomain": "",
+    "databaseURL": "",
+    "projectId": "",
+    "storageBucket": "",
+    "messagingSenderId": ""
+  }
+}
+```
+
+
 # serve with hot reload at localhost:8080
 npm run dev
 

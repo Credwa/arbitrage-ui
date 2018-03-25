@@ -41,7 +41,11 @@ export const store = new Vuex.Store({
       state.MXNRate = rate;
     },
     setBestArb: (state, arb) => {
-      if (arb.spreadPercentage > state.bestArb.spreadPercentage) {
+      if (
+        arb.spreadPercentage > state.bestArb.spreadPercentage ||
+        (shortenCurrencyName(arb.foreignCurrency) === state.bestArb.exchange &&
+          arb.symbol === state.bestArb.symbol)
+      ) {
         state.bestArb.symbol = arb.symbol;
         state.bestArb.exchange = shortenCurrencyName(arb.foreignCurrency);
         state.bestArb.spreadPercentage = arb.spreadPercentage.toLocaleString(
