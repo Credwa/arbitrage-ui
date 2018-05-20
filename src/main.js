@@ -11,15 +11,19 @@ import { store } from './store/store';
 Vue.use(VueSocketio, 'http://ec2-54-164-87-57.compute-1.amazonaws.com:3000');
 // Vue.use(VueSocketio, 'http://localhost:3000');
 
-Vue.use(Vuetify, { theme: {
-  primary: '#1976d2',
-  secondary: '#424242',
-  accent: '#82B1FF',
-  error: '#FF5252',
-  info: '#2196F3',
-  success: '#4CAF50',
-  warning: '#FFC107',
-} });
+Vue.prototype.$API_URL = 'http://ec2-54-164-87-57.compute-1.amazonaws.com:3000';
+
+Vue.use(Vuetify, {
+  theme: {
+    primary: '#1976d2',
+    secondary: '#424242',
+    accent: '#82B1FF',
+    error: '#FF5252',
+    info: '#2196F3',
+    success: '#4CAF50',
+    warning: '#FFC107',
+  },
+});
 
 Vue.config.productionTip = false;
 

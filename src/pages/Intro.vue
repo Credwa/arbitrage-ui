@@ -44,7 +44,7 @@ export default {
   height: 100vh;
   background-size: 100%;
   width: 100vw;
-  background-image: url('../assets/graph-background.jpg')
+  background-image: url("../assets/graph-background.jpg");
 }
 
 .googleButtons {
@@ -67,7 +67,7 @@ export default {
   color: #fff;
 }
 .loginBtn:before {
-  content: '';
+  content: "";
   box-sizing: border-box;
   position: absolute;
   top: 0;
@@ -88,7 +88,7 @@ export default {
 }
 .loginBtn--google:before {
   border-right: #bb3f30 1px solid;
-  background: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/14082/icon_google.png')
+  background: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/14082/icon_google.png")
     6px 6px no-repeat;
 }
 .loginBtn--google:hover,
@@ -103,7 +103,7 @@ export default {
 }
 .signUpBtn--google:before {
   border-right: #42a5f5 1px solid;
-  background: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/14082/icon_google.png')
+  background: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/14082/icon_google.png")
     6px 6px no-repeat;
 }
 .signUpBtn--google:hover,

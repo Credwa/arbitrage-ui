@@ -23,9 +23,7 @@ const login = () => {
   firebase
     .auth()
     .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-    .then(() => firebase
-      .auth()
-      .signInWithPopup(provider))
+    .then(() => firebase.auth().signInWithPopup(provider))
     .catch((error) => {
       const errorCode = error.code;
       const errorMessage = error.message;
@@ -36,13 +34,16 @@ const login = () => {
 firebase.auth().onAuthStateChanged((user) => {
   if (user) {
     // User is signed in.
-    db.collection('users').doc(user.uid).set({
-      displayName: user.displayName,
-      email: user.email,
-      uid: user.uid,
-      photoURL: user.photoURL,
-      isMember: false,
-    });
+    db
+      .collection('users')
+      .doc(user.uid)
+      .set({
+        displayName: user.displayName,
+        email: user.email,
+        uid: user.uid,
+        photoURL: user.photoURL,
+        isMember: false,
+      });
   } else {
     // No user is signed in.
   }

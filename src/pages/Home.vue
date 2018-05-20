@@ -91,22 +91,28 @@ export default {
   computed: {
     ...mapGetters(['getARSRate', 'getMXNRate', 'getAUDRate', 'getBestArb']),
     highestSpread() {
-      const all = { ...this.ARSArbitrage, ...this.MXNArbitrage, ...this.AUDArbitrage };
+      const all = {
+        ...this.ARSArbitrage,
+        ...this.MXNArbitrage,
+        ...this.AUDArbitrage,
+      };
       Object.keys(all).forEach((arb) => {
         this.setBestArb(all[arb]);
       });
     },
   },
   mounted() {
+    console.log(this.$API_URL);
     this.loading = true;
     axios
-      .get('http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/latest/MXN')
+      .get(`${this.$API_URL}/latest/MXN`)
       .then((data) => {
         this.MXNArbitrage = data.data;
-        this.setMXNRate(data.data[0].exchangeRate.toLocaleString(
-          undefined,
-          { minimumFractionDigits: 3 },
-        ));
+        this.setMXNRate(
+          data.data[0].exchangeRate.toLocaleString(undefined, {
+            minimumFractionDigits: 3,
+          }),
+        );
         this.loading = false;
       })
       .catch((e) => {
@@ -115,7 +121,7 @@ export default {
       });
 
     axios
-      .get('http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/latest/ARS')
+      .get(`${this.$API_URL}/latest/ARS`)
       .then((data) => {
         this.ARSArbitrage = data.data;
         this.setARSRate(data.data[0].exchangeRate);
@@ -125,7 +131,7 @@ export default {
       });
 
     axios
-      .get('http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/latest/AUD')
+      .get(`${this.$API_URL}/latest/AUD`)
       .then((data) => {
         this.AUDArbitrage = data.data;
         this.setAUDRate(data.data[0].exchangeRate);

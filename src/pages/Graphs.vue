@@ -130,11 +130,14 @@ export default {
           .startOf('day')
           .add(1, 'days');
       } else if (range === 'yesterday') {
-        this.startDateVal = moment().startOf('day').subtract(1, 'days');
-        this.endDateVal = moment()
-          .startOf('day');
+        this.startDateVal = moment()
+          .startOf('day')
+          .subtract(1, 'days');
+        this.endDateVal = moment().startOf('day');
       } else if (range === 'last7Days') {
-        this.startDateVal = moment().startOf('day').subtract(6, 'days');
+        this.startDateVal = moment()
+          .startOf('day')
+          .subtract(6, 'days');
         this.endDateVal = moment()
           .startOf('day')
           .add(1, 'days');
@@ -144,7 +147,9 @@ export default {
           .startOf('day')
           .add(1, 'days');
       } else if (range === 'last30Days') {
-        this.startDateVal = moment().startOf('day').subtract(29, 'days');
+        this.startDateVal = moment()
+          .startOf('day')
+          .subtract(29, 'days');
         this.endDateVal = moment()
           .startOf('day')
           .add(1, 'days');
@@ -158,10 +163,9 @@ export default {
       const graph = this.select.split('-');
       axios
         .get(
-          `http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/date-range/${
-            graph[0]
-          }/${graph[1]}/${this.startDateVal.unix() *
-            1000}/${this.endDateVal.unix() * 1000}`,
+          `${this.$API_URL}/date-range/${graph[0]}/${
+            graph[1]
+          }/${this.startDateVal.unix() * 1000}/${this.endDateVal.unix() * 1000}`,
         )
         .then((data) => {
           this.histData = data.data;
@@ -252,10 +256,9 @@ export default {
       const graph = this.select.split('-');
       axios
         .get(
-          `http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/date-range/${
-            graph[0]
-          }/${graph[1]}/${this.startDateVal.unix() *
-            1000}/${this.endDateVal.unix() * 1000}`,
+          `${this.$API_URL}/date-range/${graph[0]}/${
+            graph[1]
+          }/${this.startDateVal.unix() * 1000}/${this.endDateVal.unix() * 1000}`,
         )
         .then((data) => {
           this.histData = data.data;
@@ -272,10 +275,9 @@ export default {
       const graph = this.select.split('-');
       axios
         .get(
-          `http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/date-range/${
-            graph[0]
-          }/${graph[1]}/${this.startDateVal.unix() *
-            1000}/${this.endDateVal.unix() * 1000}`,
+          `${this.$API_URL}/date-range/${graph[0]}/${
+            graph[1]
+          }/${this.startDateVal.unix() * 1000}/${this.endDateVal.unix() * 1000}`,
         )
         .then((data) => {
           this.histData = data.data;
@@ -295,10 +297,9 @@ export default {
     this.loading = true;
     axios
       .get(
-        `http://ec2-54-164-87-57.compute-1.amazonaws.com:3000/date-range/${
-          graph[0]
-        }/${graph[1]}/${this.startDateVal.unix() *
-          1000}/${this.endDateVal.unix() * 1000}`,
+        `${this.$API_URL}/date-range/${graph[0]}/${
+          graph[1]
+        }/${this.startDateVal.unix() * 1000}/${this.endDateVal.unix() * 1000}`,
       )
       .then((data) => {
         this.histData = data.data;
