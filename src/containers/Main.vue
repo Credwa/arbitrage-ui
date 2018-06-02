@@ -43,8 +43,12 @@
       <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-spacer></v-spacer>
       <v-spacer></v-spacer>
-      {{firebase.firebase.auth().currentUser.displayName}}
-      <v-btn color="white" @click="logout" :loading="loggingOut">Log Out</v-btn>
+
+      <v-list-tile-action class="linkTile" class-active="routerLinkActive">
+        <account-dropdown> </account-dropdown>
+      </v-list-tile-action>
+      <!-- {{firebase.firebase.auth().currentUser.displayName}}
+      <v-btn color="white" @click="logout" :loading="loggingOut">Log Out</v-btn> -->
     </v-toolbar>
 
     <router-view/>
@@ -52,12 +56,16 @@
 </template>
 
 <script>
+import AccountDropdown from '../components/AccountDropdown';
+
 const firebase = require('../config/firebaseInit');
 
 export default {
+  components: {
+    AccountDropdown,
+  },
   data() {
     return {
-      loggingOut: false,
       clipped: true,
       drawer: false,
       firebase: firebase,
@@ -82,24 +90,7 @@ export default {
       title: 'Arbitrage',
     };
   },
-  methods: {
-    logout() {
-      this.loggingOut = true;
-      firebase.firebase
-        .auth()
-        .signOut()
-        .then(() => {
-          // Sign-out successful.
-          this.$router.push('/');
-          this.logginOut = false;
-        })
-        .catch((error) => {
-          // An error happened.
-          this.logginOut = false;
-          console.log(error);
-        });
-    },
-  },
+  methods: {},
   name: 'Main',
 };
 </script>

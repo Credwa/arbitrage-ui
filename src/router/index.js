@@ -47,7 +47,8 @@ export default new Router({
         { path: '/updates', component: () => import('../pages/Updates.vue') },
       ],
     },
-    { // Always leave this as last one
+    {
+      // Always leave this as last one
       path: '*',
       component: () => import('../pages/404.vue'),
     },

@@ -6,7 +6,7 @@
           <div>
             <h3 style="color:#64B5F6" class="headline mb-0">{{title}}</h3>
             <ul >
-              <li  style="padding: 1vw" v-for="note in notes">{{note}}</li>
+              <li  style="padding: 1vw" v-for="note in notes" :key="note+title">{{note}}</li>
             </ul>
           </div>
         </v-card-title>
@@ -22,11 +22,9 @@
 export default {
   props: ['title', 'notes', 'date'],
   data() {
-    return {
-    };
+    return {};
   },
-  created() {
-  },
+  created() {},
 };
 </script>
 

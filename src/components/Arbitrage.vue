@@ -22,7 +22,7 @@
                 </div>
             </v-card-text>
             <v-card-actions>
-              <span class="text-xs-right caption">Last Updated: <span style="color:#64b5f6">{{moment(getArbitrage.time).format('MM-ddd hh:mm A')}}</span></span>
+              <span class="text-xs-right caption">Last Updated: <span style="color:#64b5f6">{{moment(getArbitrage.time).format('MM-DD hh:mm A')}}</span></span>
             </v-card-actions>
           </v-card>
         </v-flex>
@@ -43,7 +43,9 @@ export default {
       moment,
     };
   },
-  methods: { ...mapMutations(['setARSRate', 'setMXNRate', 'setAUDRate', 'setBestArb']) },
+  methods: {
+    ...mapMutations(['setARSRate', 'setMXNRate', 'setAUDRate', 'setBestArb']),
+  },
   computed: {
     getArbitrage() {
       return this.newArbitrage;
@@ -101,7 +103,7 @@ export default {
   min-height: 50vh;
   max-height: 50vh;
   width: 100%;
-  min-width: 20vw
+  min-width: 20vw;
 }
 
 .newArb {
