@@ -6,6 +6,37 @@
               <div>
                 <h3 class="headline mb-0" style="color: #2e7d32">{{getArbitrage.symbol}} - ${{(getArbitrage.USDPrice.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</h3>
               </div>
+              <div class="create-alert-button">
+                <v-btn  v-if="!alertStatus" slot="activator" flat icon color="red lighten-2" @click="alertMenu = !alertMenu">
+                    <v-icon small color="red lighten-1">visibility_off</v-icon>
+                </v-btn>
+                <v-btn  slot="activator" flat icon color="blue lighten-2" v-if="alertStatus" @click="alertMenu = !alertMenu">
+                  <v-icon small color="blue lighten-1">visibility</v-icon>
+                </v-btn>
+                <v-dialog v-model="alertMenu" max-width="350">
+                  <v-card>
+                    <v-card-title>
+                      <h4>
+                        <span v-if="!alertStatus">Create</span><span v-if="alertStatus">Edit</span> alert for {{getArbitrage.symbol}}-{{getArbitrage.foreignCurrency | shortenCurrencyName}}
+                      </h4>
+                    </v-card-title>
+                    <v-card-text>
+                      <v-text-field
+                        v-model="spreadPercChange"
+                        type="number"
+                        step="0.1"
+                        label="Spread Percentage %"
+                        ></v-text-field>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-btn v-if="!alertStatus" color="primary" flat @click.stop="createAlert">Create</v-btn>
+                      <v-btn v-if="alertStatus" color="primary" flat @click.stop="createAlert">Edit</v-btn>
+                      <v-btn v-if="alertStatus" color="orange" flat @click.stop="deleteAlert">Delete</v-btn>
+                      <v-btn color="red" flat @click.stop="alertMenu=false">Close</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </div>
             </v-card-title>
             <v-divider></v-divider>
             <v-card-text ref="arbCard">
@@ -30,8 +61,10 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex';
+import { mapMutations, mapGetters } from 'vuex';
 import moment from 'moment';
+
+const db = require('../config/firebaseInit').db;
 
 export default {
   props: ['arbitrage'],
@@ -40,15 +73,91 @@ export default {
       MXNArbitrage: null,
       ARSArbitrage: null,
       newArbitrage: null,
+      alertMenu: false,
+      userAlert: null,
+      spreadPercChange: 0,
+      alertExists: null,
+      exchange: null,
       moment,
     };
   },
   methods: {
-    ...mapMutations(['setARSRate', 'setMXNRate', 'setAUDRate', 'setBestArb']),
+    ...mapMutations([
+      'setARSRate',
+      'setMXNRate',
+      'setAUDRate',
+      'setBestArb',
+      'setUserAlert',
+      'deleteUserAlert',
+    ]),
+    createAlert() {
+      if (this.spreadPercChange !== 0) {
+        const alert = {
+          exchange: this.getExchange,
+          spreadPercChange: Number(this.spreadPercChange),
+          spreadPercAtCreation: this.getArbitrage.spreadPercentage,
+          spreadAtCreation: this.getArbitrage.spread,
+          foreignExchangePriceUSDAtCreation: this.getArbitrage
+            .foreignExchangePriceUSD,
+          USDPriceAtCreation: this.getArbitrage.USDPrice,
+          foreignExchangePriceAtCreation: this.getArbitrage
+            .foreignExchangePrice,
+          priceInForeignCurrencyAtCreation: this.getArbitrage
+            .priceInForeignCurrency,
+          createdAt: new Date(),
+        };
+        db
+          .collection('users')
+          .doc(this.getCurrentUser.uid)
+          .collection('active-alerts')
+          .doc(alert.exchange)
+          .set(alert)
+          .then(() => {
+            this.alertMenu = false;
+            this.setUserAlert(alert);
+          });
+      }
+    },
+    deleteAlert() {
+      db
+        .collection('users')
+        .doc(this.getCurrentUser.uid)
+        .collection('active-alerts')
+        .doc(this.getExchange)
+        .delete()
+        .then(() => {
+          this.deleteUserAlert(this.getExchange);
+          this.alertMenu = false;
+        });
+    },
   },
   computed: {
+    ...mapGetters(['getUserAlerts', 'getCurrentUser']),
     getArbitrage() {
       return this.newArbitrage;
+    },
+    getExchange() {
+      // format exchange to symbol-foreignexchange
+      return `${
+        this.getArbitrage.symbol
+      }-${this.$options.filters.shortenCurrencyName(
+        this.getArbitrage.foreignCurrency,
+      )}`;
+    },
+    alertStatus: {
+      get: function () {
+        const userAlert = this.getUserAlerts.find(
+          val => val.exchange === this.getExchange,
+        );
+        this.spreadPercChange = userAlert ? userAlert.spreadPercChange : 0;
+        this.userAlert = userAlert;
+        return Boolean(userAlert);
+      },
+    },
+    getAlertStatus() {
+      return Boolean(
+        this.getUserAlerts.find(val => val.exchange === this.getExchange),
+      );
     },
   },
   filters: {
@@ -120,5 +229,10 @@ export default {
     background-color: #e3f2fd;
     font-size: 1.05em;
   }
+}
+
+.create-alert-button {
+  position: absolute;
+  left: 80%;
 }
 </style>

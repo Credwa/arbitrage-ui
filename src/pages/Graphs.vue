@@ -23,7 +23,10 @@
           </v-form>
         <div class="graph">
           <graph :chartData="chartData" :options="chartOptions" class="graphs"> </graph>
-          <v-progress-circular v-bind:size="250" v-bind:width="2" v-if="loading" indeterminate color="primary"></v-progress-circular>
+          <div class="spinner" v-if="loading">
+            <div class="cube1"></div>
+            <div class="cube2"></div>
+          </div>
         </div>
 
       </v-layout>

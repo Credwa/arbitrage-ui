@@ -1,6 +1,8 @@
 const firebase = require('firebase');
 require('firebase/firestore');
 
+const store = require('../store/store').store;
+
 const configData = require('./config.json').init;
 
 const config = {
@@ -37,12 +39,25 @@ firebase.auth().onAuthStateChanged((user) => {
     db
       .collection('users')
       .doc(user.uid)
-      .set({
+      .set(
+      {
         displayName: user.displayName,
         email: user.email,
         uid: user.uid,
         photoURL: user.photoURL,
-        isMember: false,
+      },
+        { merge: true },
+      )
+      .then(() => {
+        db
+          .collection('users')
+          .doc(user.uid)
+          .get()
+          .then((doc) => {
+            if (doc.exists) {
+              store.commit('setCurrentUser', doc.data());
+            }
+          });
       });
   } else {
     // No user is signed in.
@@ -55,4 +70,5 @@ module.exports = {
   firebase,
   login,
   getCurrentUser,
+  db,
 };

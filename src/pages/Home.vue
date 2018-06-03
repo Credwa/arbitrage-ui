@@ -14,7 +14,7 @@
                 AUD
               </v-btn>
             </v-btn-toggle>
-            <v-chip color="primary"><span style="color:white">{{getBestArb.exchange}}-{{getBestArb.symbol}}: {{getBestArb.spreadPercentage}}% | ${{getBestArb.spread}}</span></v-chip>
+            <v-chip color="primary"><span style="color:white">{{getBestArb.exchange}}-{{getBestArb.symbol}}: {{getBestArb.spreadPercentage || 0}}% | ${{getBestArb.spread}}</span></v-chip>
           </v-flex>
         <v-layout row>
           <h1 v-if="activeExchange === 'MXN'">Mexican Peso Exchange Rate: <span style="color:#2e7d32">$1.000 - {{getMXNRate}} MXN</span></h1>
@@ -31,7 +31,10 @@
           <arbitrage  v-show="activeExchange === 'AUD'" v-for="arbitrage in AUDArbitrage" :key="arbitrage.time" :arbitrage="arbitrage"></arbitrage>
         </v-layout>
       </v-layout>
-      <v-progress-circular v-bind:size="250" v-bind:width="2" v-if="loading" indeterminate color="primary"></v-progress-circular>
+    <div class="spinner" v-if="loading">
+      <div class="cube1"></div>
+      <div class="cube2"></div>
+    </div>
     </v-slide-y-transition>
   </v-container>
 </template>
@@ -40,6 +43,8 @@
 import { mapMutations, mapGetters } from 'vuex';
 import axios from 'axios';
 import Arbitrage from '../components/Arbitrage';
+
+const db = require('../config/firebaseInit').db;
 
 export default {
   components: {
@@ -63,22 +68,28 @@ export default {
   watch: {
     MXNArbitrage() {
       Object.keys(this.MXNArbitrage).forEach((arb) => {
-        this.setBestArb(this.MXNArbitrage[arb]);
+        this.setBestArb(this.MXNArbitrage[arb] || Object());
       });
     },
     ARSArbitrage() {
       Object.keys(this.ARSArbitrage).forEach((arb) => {
-        this.setBestArb(this.ARSArbitrage[arb]);
+        this.setBestArb(this.ARSArbitrage[arb] || Object());
       });
     },
     AUDArbitrage() {
       Object.keys(this.MXNArbitrage).forEach((arb) => {
-        this.setBestArb(this.AUDArbitrage[arb]);
+        this.setBestArb(this.AUDArbitrage[arb] || Object());
       });
     },
   },
   methods: {
-    ...mapMutations(['setARSRate', 'setMXNRate', 'setAUDRate', 'setBestArb']),
+    ...mapMutations([
+      'setARSRate',
+      'setMXNRate',
+      'setAUDRate',
+      'setBestArb',
+      'setUserAlert',
+    ]),
     shortenCurrencyName(value) {
       if (value === 'Mexican Pesos') {
         return 'MXN';
@@ -89,7 +100,13 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(['getARSRate', 'getMXNRate', 'getAUDRate', 'getBestArb']),
+    ...mapGetters([
+      'getARSRate',
+      'getMXNRate',
+      'getAUDRate',
+      'getBestArb',
+      'getCurrentUser',
+    ]),
     highestSpread() {
       const all = {
         ...this.ARSArbitrage,
@@ -97,12 +114,11 @@ export default {
         ...this.AUDArbitrage,
       };
       Object.keys(all).forEach((arb) => {
-        this.setBestArb(all[arb]);
+        this.setBestArb(all[arb] || Object());
       });
     },
   },
   mounted() {
-    console.log(this.$API_URL);
     this.loading = true;
     axios
       .get(`${this.$API_URL}/latest/MXN`)
@@ -139,6 +155,18 @@ export default {
       .catch((e) => {
         console.log(e);
       });
+    setTimeout(() => {
+      db
+        .collection('users')
+        .doc(this.getCurrentUser.uid)
+        .collection('active-alerts')
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            this.setUserAlert(doc.data());
+          });
+        });
+    }, 1000);
   },
 };
 </script>

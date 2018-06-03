@@ -46,7 +46,7 @@
                   </v-list-tile>
                   <v-list-tile avatar>
                     <v-list-tile-action>
-                      <v-checkbox v-model="emailAlerts"></v-checkbox>
+                      <v-checkbox v-model="emailAlerts" disabled></v-checkbox>
                     </v-list-tile-action>
                     <v-list-tile-content>
                       <v-list-tile-title>Email</v-list-tile-title>
@@ -69,13 +69,14 @@
 
                 <v-list three-line subheader>
                   <v-subheader>Active Alerts</v-subheader>
-                  <v-list-tile avatar v-for="n in 10" :key="n" >
+                  <v-list-tile avatar v-for="(alert,index) in getUserAlerts" :key="index" >
                     <v-list-tile-content>
-                      <v-list-tile-title>Alert {{n}} BTC-MXN +1.5%</v-list-tile-title>
-                      <v-list-tile-sub-title>Created 05/20/18 8:32PM @Spread% -2.062 </v-list-tile-sub-title>
+                      <v-list-tile-title>Alert @ {{alert.exchange}} reaches <span :style="alert.spreadPercChange > 0 ? 'color:purple' : 'color:orange'">{{alert.spreadPercChange}}%</span></v-list-tile-title>
+                      <v-list-tile-sub-title>Created {{moment(alert.createdAt).format('MM/DD/YY HH:mm')}} @ Spread <span :style="alert.spreadPercAtCreation > 0 ? 'color: green' : 'color:red'">{{alert.spreadPercAtCreation.toLocaleString(undefined, { minimumFractionDigits: 3 })}}%</span>
+                    </v-list-tile-sub-title>
                     </v-list-tile-content>
                     <v-list-tile-content>
-                      <v-btn flat icon color="red lighten-4">
+                      <v-btn flat icon color="red lighten-4" @click="deleteAlert(alert.exchange)">
                           <v-icon large color="red darken-2">close</v-icon>
                       </v-btn>
                     </v-list-tile-content>
@@ -92,6 +93,9 @@
 </template>
 
 <script>
+import { mapMutations, mapGetters } from 'vuex';
+import moment from 'moment';
+
 const firebase = require('../config/firebaseInit');
 
 export default {
@@ -104,9 +108,11 @@ export default {
       phoneNumber: null,
       email: '',
       savingSettings: false,
+      moment,
     };
   },
   methods: {
+    ...mapMutations(['deleteUserAlert']),
     logout() {
       firebase.firebase
         .auth()
@@ -122,17 +128,67 @@ export default {
           console.log(error);
         });
     },
+    deleteAlert(exchange) {
+      firebase.db
+        .collection('users')
+        .doc(this.getCurrentUser.uid)
+        .collection('active-alerts')
+        .doc(exchange)
+        .delete()
+        .then(() => {
+          this.deleteUserAlert(exchange);
+        });
+    },
     saveAlertSettings() {
       this.savingSettings = true;
-      setTimeout(() => {
+      if (
+        this.getCurrentUser.phoneNumber !== this.phoneNumber ||
+        this.textAlerts !== this.getCurrentUser.receiveTextAlerts
+      ) {
+        firebase.db
+          .collection('users')
+          .doc(this.getCurrentUser.uid)
+          .update({
+            phoneNumber: this.phoneNumber,
+            receiveTextAlerts: this.textAlerts,
+            alerts: {
+              text: {
+                receive: this.textAlerts,
+                number: this.phoneNumber,
+                verified: false,
+              },
+            },
+          })
+          .then(() => {
+            this.savingSettings = false;
+            this.alertModal = false;
+          });
+      } else {
         this.savingSettings = false;
         this.alertModal = false;
-      }, 3000);
+      }
     },
+  },
+  computed: {
+    ...mapGetters(['getUserAlerts', 'getCurrentUser']),
   },
   created() {
     console.log(this.firebase.firebase.auth().currentUser);
     this.email = this.firebase.firebase.auth().currentUser.email;
+    setTimeout(() => {
+      if (this.getCurrentUser) {
+        if ('alerts' in this.getCurrentUser) {
+          if ('text' in this.getCurrentUser.alerts) {
+            if ('number' in this.getCurrentUser.alerts.text) {
+              this.phoneNumber = this.getCurrentUser.alerts.text.number;
+            }
+            if ('receive' in this.getCurrentUser.alerts.text) {
+              this.textAlerts = this.getCurrentUser.alerts.text.receive;
+            }
+          }
+        }
+      }
+    }, 1000);
   },
 };
 </script>
