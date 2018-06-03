@@ -4,7 +4,7 @@
           <v-card class="arbitrageCard" >
             <v-card-title primary-title>
               <div>
-                <h3 class="headline mb-0" style="color: #2e7d32">{{getArbitrage.symbol}} - ${{(getArbitrage.USDPrice.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</h3>
+                <h3 class="headline mb-0" style="color: #2e7d32">{{getArbitrage.symbol}} - ${{getArbitrage.USDPrice? (getArbitrage.USDPrice.toLocaleString(undefined, { minimumFractionDigits: 3 })) : null}}</h3>
               </div>
               <div class="create-alert-button">
                 <v-btn  v-if="!alertStatus" slot="activator" flat icon color="red lighten-2" @click="alertMenu = !alertMenu">
@@ -41,14 +41,14 @@
             <v-divider></v-divider>
             <v-card-text ref="arbCard">
                 <div class="arbitrageData">
-                  <p>Spread: <span :style="getArbitrage.spread > 0 ? 'color:#2e7d32' : 'color:#e53935'">${{(getArbitrage.spread.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
+                  <p>Spread: <span :style="getArbitrage.spread > 0 ? 'color:#2e7d32' : 'color:#e53935'">${{getArbitrage.spread ? ( getArbitrage.spread.toLocaleString(undefined, { minimumFractionDigits: 3 })) : null}}</span></p>
 
-                  <p>Spread Percentage: <span :style="getArbitrage.spreadPercentage > 0 ? 'color:#ab47bc' : 'color:#e53935'">{{(getArbitrage.spreadPercentage.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}%</span></p>
-                  <p>Face Value {{getArbitrage.foreignCurrency | shortenCurrencyName}}: <span style="color: #0d47a1">₱{{(getArbitrage.priceInForeignCurrency.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
+                  <p>Spread Percentage: <span :style="getArbitrage.spreadPercentage > 0 ? 'color:#ab47bc' : 'color:#e53935'">{{getArbitrage.spreadPercentage ?(getArbitrage.spreadPercentage.toLocaleString(undefined, { minimumFractionDigits: 3 })) : null}}%</span></p>
+                  <p>Face Value {{getArbitrage.foreignCurrency | shortenCurrencyName}}: <span style="color: #0d47a1">₱{{getArbitrage.priceInForeignCurrency ? (getArbitrage.priceInForeignCurrency.toLocaleString(undefined, { minimumFractionDigits: 3 })) : null}}</span></p>
 
-                  <p>Foreign Exchange Value: <span style="color: #0d47a1">₱{{(getArbitrage.foreignExchangePrice.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
+                  <p>Foreign Exchange Value: <span style="color: #0d47a1">₱{{getArbitrage.foreignExchangePrice ?(getArbitrage.foreignExchangePrice.toLocaleString(undefined, { minimumFractionDigits: 3 })) : null}}</span></p>
 
-                  <p>Foreign Exchange Value In USD: <span style="color: #2e7d32">${{(getArbitrage.foreignExchangePriceUSD.toLocaleString(undefined, { minimumFractionDigits: 3 }))}}</span></p>
+                  <p>Foreign Exchange Value In USD: <span style="color: #2e7d32">${{getArbitrage.foreignExchangePriceUSD ?(getArbitrage.foreignExchangePriceUSD.toLocaleString(undefined, { minimumFractionDigits: 3 })) : null}}</span></p>
 
                 </div>
             </v-card-text>

@@ -67,17 +67,17 @@ export default {
   sockets: {},
   watch: {
     MXNArbitrage() {
-      Object.keys(this.MXNArbitrage).forEach((arb) => {
+      Object.keys(this.MXNArbitrage || Object()).forEach((arb) => {
         this.setBestArb(this.MXNArbitrage[arb] || Object());
       });
     },
     ARSArbitrage() {
-      Object.keys(this.ARSArbitrage).forEach((arb) => {
+      Object.keys(this.ARSArbitrage || Object()).forEach((arb) => {
         this.setBestArb(this.ARSArbitrage[arb] || Object());
       });
     },
     AUDArbitrage() {
-      Object.keys(this.MXNArbitrage).forEach((arb) => {
+      Object.keys(this.MXNArbitrage || Object()).forEach((arb) => {
         this.setBestArb(this.AUDArbitrage[arb] || Object());
       });
     },
@@ -166,7 +166,7 @@ export default {
             this.setUserAlert(doc.data());
           });
         });
-    }, 1000);
+    }, 2000);
   },
 };
 </script>

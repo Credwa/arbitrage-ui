@@ -35,12 +35,14 @@
                       <v-list-tile-sub-title>Notify me by text about arb changes</v-list-tile-sub-title>
 
                     </v-list-tile-content>
+
                     <v-list-tile-content>
-                      <v-text-field
+                     <span>USA Only</span> <v-text-field
                       :disabled="!textAlerts"
                       v-model="phoneNumber"
                       label="Phone Number"
                       type="tel"
+                      prefix="+1"
                     ></v-text-field>
                     </v-list-tile-content>
                   </v-list-tile>
@@ -173,7 +175,6 @@ export default {
     ...mapGetters(['getUserAlerts', 'getCurrentUser']),
   },
   created() {
-    console.log(this.firebase.firebase.auth().currentUser);
     this.email = this.firebase.firebase.auth().currentUser.email;
     setTimeout(() => {
       if (this.getCurrentUser) {
