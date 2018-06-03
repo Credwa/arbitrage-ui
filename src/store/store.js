@@ -36,8 +36,12 @@ export const store = new Vuex.Store({
     getUserAlerts: state => state.userAlerts,
     getUserAlert: (state, exchange) =>
       state.userAlerts.find(val => val.exchange === exchange),
+    getAllowAlertCreations: state => state.allowAlertCreation,
   },
   mutations: {
+    changeAllowAlertCreation: (state) => {
+      state.allowAlertCreation = true;
+    },
     setCurrentUser: (state, user) => {
       state.currentUser = user;
     },

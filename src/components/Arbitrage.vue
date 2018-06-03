@@ -56,6 +56,14 @@
               <span class="text-xs-right caption">Last Updated: <span style="color:#64b5f6">{{moment(getArbitrage.time).format('MM-DD hh:mm A')}}</span></span>
             </v-card-actions>
           </v-card>
+          <v-snackbar
+          :timeout="6000"
+          :bottom="true"
+          v-model="snackbar"
+          color="red"
+        >
+          {{ snacktext }}
+        </v-snackbar>
         </v-flex>
     </v-slide-y-transition>
 </template>
@@ -78,6 +86,8 @@ export default {
       spreadPercChange: 0,
       alertExists: null,
       exchange: null,
+      snacktext: '',
+      snackbar: false,
       moment,
     };
   },
@@ -92,6 +102,12 @@ export default {
     ]),
     createAlert() {
       if (this.spreadPercChange !== 0) {
+        if (!this.getAllowAlertCreations) {
+          this.snacktext = 'Need verified phone number!';
+          this.snackbar = !this.snackbar;
+          this.alertMenu = false;
+          return;
+        }
         const alert = {
           exchange: this.getExchange,
           spreadPercChange: Number(this.spreadPercChange),
@@ -116,6 +132,9 @@ export default {
             this.alertMenu = false;
             this.setUserAlert(alert);
           });
+      } else {
+        this.snacktext = "Spread % can't be 0!";
+        this.snackbar = !this.snackbar;
       }
     },
     deleteAlert() {
@@ -132,7 +151,11 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(['getUserAlerts', 'getCurrentUser']),
+    ...mapGetters([
+      'getUserAlerts',
+      'getCurrentUser',
+      'getAllowAlertCreations',
+    ]),
     getArbitrage() {
       return this.newArbitrage;
     },

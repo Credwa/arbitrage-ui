@@ -112,7 +112,7 @@ export default {
     };
   },
   methods: {
-    ...mapMutations(['deleteUserAlert']),
+    ...mapMutations(['deleteUserAlert', 'changeAllowAlertCreation']),
     logout() {
       firebase.firebase
         .auth()
@@ -180,6 +180,7 @@ export default {
         if ('alerts' in this.getCurrentUser) {
           if ('text' in this.getCurrentUser.alerts) {
             if ('number' in this.getCurrentUser.alerts.text) {
+              this.changeAllowAlertCreation();
               this.phoneNumber = this.getCurrentUser.alerts.text.number;
             }
             if ('receive' in this.getCurrentUser.alerts.text) {
